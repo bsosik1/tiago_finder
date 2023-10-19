@@ -1,0 +1,5 @@
+global_config:
+  ros__parameters:
+    world_name: 'pal_office'
+    use_navigation: 'true'
+    use_moveit: 'true'
