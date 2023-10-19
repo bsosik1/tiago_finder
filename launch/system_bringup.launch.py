@@ -50,20 +50,29 @@ def get_resource_paths(packages_names):
 def generate_launch_description():
 
     # READ AND PASS CONFIG FROM YAML FILE
-
-    global_config = get_params_from_yaml(
-        os.path.join(get_package_share_directory('tiago_finder'),
+    tiago_finder_pkg = get_package_share_directory('tiago_finder')
+    global_conf = get_params_from_yaml(
+        os.path.join(tiago_finder_pkg,
                      'config', 'global_config.yaml')
     )
 
-    use_nav = global_config['global_config']['ros__parameters']['use_navigation']
+    use_nav = global_conf['global_config']['ros__parameters']['use_navigation']
     print(f'Use navigation: {use_nav}')
 
-    use_moveit = global_config['global_config']['ros__parameters']['use_moveit']
+    use_moveit = global_conf['global_config']['ros__parameters']['use_moveit']
     print(f'Use moveit: {use_moveit}')
 
-    world_name = global_config['global_config']['ros__parameters']['world_name']
-    print(f'world: {world_name}')
+    world_name = global_conf['global_config']['ros__parameters']['world_name']
+    print(f'World: {world_name}')
+
+    map_name = global_conf['global_config']['ros__parameters']['map_name']
+    print(f'Map: {map_name}')
+
+    use_rviz = global_conf['global_config']['ros__parameters']['use_rviz']
+    print(f'Use rviz: {use_rviz}')
+
+    use_slam = global_conf['global_config']['ros__parameters']['use_slam']
+    print(f'Use slam: {use_slam}')
 
     # DECLARE LAUNCH ARGUMENTS
 
@@ -81,6 +90,30 @@ def generate_launch_description():
         'world_name', default_value=world_name,
         description='Specify which world to load'
     )
+
+    declare_rviz_arg = DeclareLaunchArgument(
+        "rviz",
+        default_value=use_rviz,
+        description="Open RViz2 along with the Navigation",
+    )
+
+    declare_map_yaml_cmd = DeclareLaunchArgument(
+        "map",
+        default_value=os.path.join(tiago_finder_pkg, "maps", map_name),
+        description="Full path to map yaml file to load",
+    )
+
+    declare_slam_cmd = DeclareLaunchArgument(
+        "slam",
+        default_value=use_slam,
+        description="Whether to start the SLAM or the Map Localization",
+    )
+
+    declare_rviz_config_file_cmd = DeclareLaunchArgument(
+        'rviz_config',
+        default_value=os.path.join(tiago_finder_pkg, 'rviz',
+                                   'rviz_tiago_finder.rviz'),
+        description='Full path to the RVIZ config file to use')
 
     # LAUNCH BRINGUP
 
@@ -159,6 +192,10 @@ def generate_launch_description():
     ld = LaunchDescription()
     ld.add_action(SetEnvironmentVariable('GAZEBO_MODEL_PATH', model_path))
 
+    ld.add_action(declare_rviz_arg)
+    ld.add_action(declare_rviz_config_file_cmd)
+    ld.add_action(declare_slam_cmd)
+    ld.add_action(declare_map_yaml_cmd)
     ld.add_action(world_name_arg)
     ld.add_action(gazebo)
 

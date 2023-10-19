@@ -1,5 +1,8 @@
 global_config:
   ros__parameters:
-    world_name: 'pal_office'
+    world_name: 'pal_office' # Localization: pal_gazebo_worlds package
+    map_name: 'map.yaml'     # Localization: tiago_finder package
     use_navigation: 'true'
     use_moveit: 'true'
+    use_slam: 'false'
+    use_rviz: 'true'
