@@ -35,7 +35,9 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'my_node = tiago_finder.my_node:main'
+            'my_node = tiago_finder.my_node:main',
+            'cov_nav = tiago_finder.coverage_navigation:main',
+            'head_turner = tiago_finder.head_turner:main',
         ],
     },
 )

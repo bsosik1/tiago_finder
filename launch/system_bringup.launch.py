@@ -8,7 +8,6 @@ from launch.actions import SetEnvironmentVariable
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
-from launch_ros.actions import Node
 import yaml
 from launch_ros.substitutions import FindPackageShare
 
@@ -73,6 +72,10 @@ def generate_launch_description():
 
     use_slam = global_conf['global_config']['ros__parameters']['use_slam']
     print(f'Use slam: {use_slam}')
+
+    motions_file = global_conf['global_config']['ros__parameters']['motions']
+    motions_path = os.path.join(tiago_finder_pkg, 'config', motions_file)
+    print(f'Use slam: {motions_file}')
 
     # DECLARE LAUNCH ARGUMENTS
 
@@ -169,12 +172,17 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('moveit'))
     )
 
-    # TUCK ARM NODE
-
-    tuck_arm = Node(package='tiago_gazebo',
-                    executable='tuck_arm.py',
-                    emulate_tty=True,
-                    output='both')
+    # Usunięto z tiago_bringup launch
+    playmotion2 = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            PathJoinSubstitution([
+                FindPackageShare('play_motion2'),
+                'launch',
+                'play_motion2.launch.py'
+            ])
+        ]),
+        launch_arguments={'play_motion2_config': motions_path}.items()
+    )
 
     # GAZEBO RESOURCES
 
@@ -207,6 +215,7 @@ def generate_launch_description():
 
     ld.add_action(moveit_arg)
     ld.add_action(moveit)
-    ld.add_action(tuck_arm)
+
+    # ld.add_action(playmotion2)
 
     return ld

@@ -326,7 +326,7 @@ Visualization Manager:
       Value: true
       Visual Enabled: true
     - Class: rviz_default_plugins/TF
-      Enabled: true
+      Enabled: false
       Frame Timeout: 15
       Frames:
         All Enabled: false
@@ -421,7 +421,7 @@ Visualization Manager:
         map:
           Value: false
         odom:
-          Value: true
+          Value: false
         rgbd_laser_link:
           Value: false
         suspension_left_link:
