@@ -2,10 +2,6 @@
   ros__parameters:
     controllers: [head_controller, torso_controller]
 
-    # params for first position approach
-    approach_velocity: 0.5        # default 0.5
-    approach_min_duration: 0.0    # default 0.0
-
     motions:
       home:
         joints: [torso_lift_joint]
@@ -14,7 +10,7 @@
         meta:
           name: Home
           usage: demo
-          description: 'Homing'
+          description: 'Go home'
 
       head_tour:
         joints: [head_1_joint, head_2_joint]
@@ -30,8 +26,8 @@
         meta:
           name: Head Tour
           usage: demo
-          description: 'Moves head to left, right, up and down'
-
+          description: 'head_tour'
+          
       turn_head:
         joints: [head_1_joint, head_2_joint]
         positions: [0.0, 0.0,

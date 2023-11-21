@@ -3,23 +3,34 @@ from rclpy.action import ActionClient
 from rclpy.node import Node
 from play_motion2_msgs.action import PlayMotion2
 from rclpy.task import Future
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, Empty
 
 
-class HeadTurner(Node):
+class HeadTurnAtWaypoint(Node):
     def __init__(self):
-        super().__init__('head_turner')
+        super().__init__('head_turn_at_waypoint')
         self._action_client = ActionClient(self, PlayMotion2, 'play_motion2')
         self.movement_completed = False
         self.object_found = False
         self.goal_handle = None
+        # SUBSCRIBERS
         self._found_subscriber = self.create_subscription(
             Bool, 'object_found', self.found_callback, 10)
+        self._waypoint_reached_subscriber = self.create_subscription(
+            Empty, 'waypoint_reached', self.waypoint_reached_callback, 10)
+        # PUBLISHERS
+        self._movement_completed_publisher = self.create_publisher(
+            Empty, 'head_movement_finished', 10)
 
     def found_callback(self, msg):
         self.get_logger().info('Object found! Stopping motion...')
         self.object_found = True
         self._action_client._cancel_goal_async(self.goal_handle)
+
+    def waypoint_reached_callback(self, msg):
+        p_str = "Starting head movement at waypoint..."
+        self.get_logger().info(p_str)
+        self.send_goal()
 
     def send_goal(self):
         msg = PlayMotion2.Goal()
@@ -50,18 +61,19 @@ class HeadTurner(Node):
             self.get_logger().info(p_str)
             rclpy.shutdown()
         elif self.movement_completed is True:
-            self.send_goal()
-            self.get_logger().info('Requesting new movement')
+            p_str = 'Movement completed. Proceed to the next waypoint...'
+            self.get_logger().info(p_str)
+            msg = Empty()
+            self._movement_completed_publisher.publish(msg)
         else:
-            p_str = 'Error. Cannot procced to new movement. Shutting down...'
+            p_str = 'Error. Cannot procced further. Shutting down...'
             self.get_logger().error(p_str)
             rclpy.shutdown()
 
 
 def main(args=None):
     rclpy.init(args=args)
-    action_client = HeadTurner()
-    action_client.send_goal()
+    action_client = HeadTurnAtWaypoint()
     rclpy.spin(action_client)
 
 

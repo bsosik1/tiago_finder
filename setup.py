@@ -37,7 +37,9 @@ setup(
         'console_scripts': [
             'my_node = tiago_finder.my_node:main',
             'cov_nav = tiago_finder.coverage_navigation:main',
+            'waypoint_manager = tiago_finder.waypoint_manager:main',
             'head_turner = tiago_finder.head_turner:main',
+            'head_turn_at_waypoint = tiago_finder.head_turn_at_waypoint:main',
         ],
     },
 )

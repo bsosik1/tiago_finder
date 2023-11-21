@@ -73,10 +73,6 @@ def generate_launch_description():
     use_slam = global_conf['global_config']['ros__parameters']['use_slam']
     print(f'Use slam: {use_slam}')
 
-    motions_file = global_conf['global_config']['ros__parameters']['motions']
-    motions_path = os.path.join(tiago_finder_pkg, 'config', motions_file)
-    print(f'Use slam: {motions_file}')
-
     # DECLARE LAUNCH ARGUMENTS
 
     navigation_arg = DeclareLaunchArgument(
@@ -172,18 +168,6 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('moveit'))
     )
 
-    # Usunięto z tiago_bringup launch
-    playmotion2 = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
-            PathJoinSubstitution([
-                FindPackageShare('play_motion2'),
-                'launch',
-                'play_motion2.launch.py'
-            ])
-        ]),
-        launch_arguments={'play_motion2_config': motions_path}.items()
-    )
-
     # GAZEBO RESOURCES
 
     packages = ['tiago_description', 'pmb2_description',
@@ -215,7 +199,5 @@ def generate_launch_description():
 
     ld.add_action(moveit_arg)
     ld.add_action(moveit)
-
-    # ld.add_action(playmotion2)
 
     return ld

@@ -1,9 +1,8 @@
 global_config:
   ros__parameters:
-    world_name: 'W1' # Localization: pal_gazebo_worlds package
+    world_name: 'W_1'            # Localization: pal_gazebo_worlds package
     map_name: 'W1_map.yaml'     # Localization: tiago_finder package
     use_navigation: 'true'
     use_moveit: 'false'
     use_slam: 'false'
     use_rviz: 'true'
-    motions: 'motions.yaml'

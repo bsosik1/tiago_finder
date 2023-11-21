@@ -76,7 +76,7 @@ bt_navigator:
     enable_groot_monitoring: True
     groot_zmq_publisher_port: 1666
     groot_zmq_server_port: 1667
-    default_bt_xml_filename: "navigate_w_replanning_and_recovery.xml"
+    default_bt_xml_filename: "navigate_to_pose_w_replanning_and_recovery.xml"
     plugin_lib_names:
     - nav2_compute_path_to_pose_action_bt_node
     - nav2_compute_path_through_poses_action_bt_node
@@ -160,11 +160,14 @@ controller_server:
       debug_trajectory_details: True
       min_vel_x: 0.0
       min_vel_y: 0.0
-      max_vel_x: 1.00
+      # CHANGE FROM 1.0
+      max_vel_x: 0.5
       max_vel_y: 0.0
-      max_vel_theta: 1.00
+      # CHANGE FROM 1.0
+      max_vel_theta: 1.0
       min_speed_xy: 0.0
-      max_speed_xy: 1.00
+      # CHANGE FROM 1.0
+      max_speed_xy: 1.0
       min_speed_theta: 0.0
       acc_lim_x: 2.5
       acc_lim_y: 0.0
@@ -326,8 +329,10 @@ slam_toolbox:
     throttle_scans: 1
     transform_publish_period: 0.02 #if 0 never publishes odometry
     map_update_interval: 5.0
-    resolution: 0.05
-    max_laser_range: 20.0 #for rastering images
+    # CHANGED FROM DEFAULT 0.05
+    resolution: 0.1
+    # CHANGED FROM DEFAULT 20.0
+    max_laser_range: 5.0 #for rastering images
     minimum_time_interval: 0.5
     transform_timeout: 0.2
     tf_buffer_duration: 30.0
@@ -374,8 +379,10 @@ slam_toolbox:
 waypoint_follower:
   ros__parameters:
     stop_on_failure: false
-    waypoint_task_executor_plugin: "wait_at_waypoint"
-    wait_at_waypoint:
-      plugin: "nav2_waypoint_follower::WaitAtWaypoint"
+    waypoint_task_executor_plugin: "input_at_waypoint"
+    input_at_waypoint:
+      plugin: "nav2_waypoint_follower::InputAtWaypoint"
       enabled: True
-      waypoint_pause_duration: 0
+      timeout: 20.0
+      input_topic: "head_movement_finished"
+      # waypoint_pause_duration: 2000
