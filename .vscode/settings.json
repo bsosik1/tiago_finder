@@ -4,11 +4,13 @@
         "/opt/ros/humble/lib/python3.10/site-packages",
         "/home/bsosik/tiago_ros2_ws/install/play_motion2_msgs/local/lib/python3.10/dist-packages",
         "/home/bsosik/tiago_ros2_ws/src/play_motion2/play_motion2/include/**",
+        "/home/bsosik/tiago_ros2_ws/install/yolov8_msgs/local/lib/python3.10/dist-packages",
     ],
     "python.analysis.extraPaths": [
         "/opt/ros/humble/local/lib/python3.10/dist-packages",
         "/opt/ros/humble/lib/python3.10/site-packages",
         "/home/bsosik/tiago_ros2_ws/install/play_motion2_msgs/local/lib/python3.10/dist-packages",
+        "/home/bsosik/tiago_ros2_ws/install/yolov8_msgs/local/lib/python3.10/dist-packages",
     ],
     "ros.distro": "humble",
 }
