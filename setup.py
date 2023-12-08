@@ -40,7 +40,11 @@ setup(
             'waypoint_manager = tiago_finder.waypoint_manager:main',
             'head_turner = tiago_finder.head_turner:main',
             'head_turn_at_waypoint = tiago_finder.head_turn_at_waypoint:main',
-            'yolo_detection = tiago_finder.yolo_detection:main'
+            'yolo_detection = tiago_finder.yolo_detection:main',
+            'voice_control = tiago_finder.voice_control:main',
+            'goal_manager = tiago_finder.goal_manager:main',
+            'head_turn_server = tiago_finder.head_turn_server:main',
+            'waypoint_manager_2 = tiago_finder.waypoint_manager_2:main'
         ],
     },
 )

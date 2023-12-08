@@ -10,6 +10,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 import yaml
 from launch_ros.substitutions import FindPackageShare
+from launch_ros.actions import Node
 
 
 def get_params_from_yaml(path):
@@ -168,6 +169,12 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('moveit'))
     )
 
+    yolo_detection = Node(
+        package='tiago_finder',
+        executable='yolo_detection',
+        name='yolo_detection'
+    )
+
     # GAZEBO RESOURCES
 
     packages = ['tiago_description', 'pmb2_description',
@@ -199,5 +206,6 @@ def generate_launch_description():
 
     ld.add_action(moveit_arg)
     ld.add_action(moveit)
+    ld.add_action(yolo_detection)
 
     return ld
