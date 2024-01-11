@@ -8,7 +8,9 @@ from yolov8_msgs.msg import InferenceResult
 from yolov8_msgs.msg import Yolov8Inference
 
 bridge = CvBridge()
-path = '/home/bsosik/tiago_ros2_ws/src/tiago_finder/config/yolo_models/best.pt'
+path_pref = '/home/bsosik/tiago_ros2_ws/src/tiago_finder/config/yolo_models/'
+chosen_model = 'best_w_furniture.pt'
+path = path_pref + chosen_model
 
 
 class Camera_To_YOLO(Node):
@@ -46,14 +48,14 @@ class Camera_To_YOLO(Node):
             boxes = element.boxes
             for box in boxes:
                 self.inference_result = InferenceResult()
-                b = box.xyxy[0].to('cpu').detach().numpy().copy()
+                b = box.xywh[0].to('cpu').detach().numpy().copy()
                 c = box.cls
                 self.inference_result.class_name = self.model.names[int(c)]
                 self.inference_result.confidence = float(box.conf)
-                self.inference_result.top = int(b[0])
-                self.inference_result.left = int(b[1])
-                self.inference_result.bottom = int(b[2])
-                self.inference_result.right = int(b[3])
+                self.inference_result.x_center = int(b[0])
+                self.inference_result.y_center = int(b[1])
+                self.inference_result.width = int(b[2])
+                self.inference_result.height = int(b[3])
                 self.yolo_result.yolov8_inference.append(self.inference_result)
 
         annotated_frame = result[0].plot()

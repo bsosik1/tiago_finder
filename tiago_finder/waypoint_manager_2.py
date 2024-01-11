@@ -98,7 +98,7 @@ class WaypointManager(Node):
         p_str = 'Movement finished with success: {0}'
         self.get_logger().info(p_str.format(result.success))
         if result.success is False and self.object_found is True:
-            p_str = "Head movement stopped. Shutting down..."
+            p_str = "Head movement stopped. Check if object was found."
             self.get_logger().info(p_str)
         elif result.success is True:
             self.get_logger().info('Head movement completed!')
@@ -115,6 +115,7 @@ class WaypointManager(Node):
         self._basic_navigator.cancelTask()
 
     def proceed_through_waypoints(self):
+        # TODO CANCEL GOAL WHEN FOUND
         self._basic_navigator.waitUntilNav2Active()
         waypoints = read_yaml_waypoints(
             '/home/bsosik/tiago_ros2_ws/src/tiago_finder/config/waypoints/W_1')
@@ -139,18 +140,20 @@ class WaypointManager(Node):
             result = self._basic_navigator.getResult()
             if result == TaskResult.SUCCEEDED:
                 print(f'Waypoint {i} was reached!')
+                if i == len(goal_poses):
+                    print('Visited each waypoint successfully')
                 print('Waiting for head movement before next waypoint...')
                 self.send_goal()
                 while not self.movement_completed:
                     rclpy.spin_once(self)
             elif result == TaskResult.CANCELED:
                 print('Goal was cancelled. Check if object was found.')
+                return
             elif result == TaskResult.FAILED:
                 print('Could not visit a waypoint!')
                 continue
             else:
                 print('Invalid return status!')
-        print('Visited each waypoint successfully')
 
 
 def main(args=None):
