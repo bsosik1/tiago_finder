@@ -97,7 +97,7 @@ def relative_positon(o: InferenceResult, f: InferenceResult):
             if y2_o < f.y_center+f.height*0.16:
                 return "on"
             if overlap > 95:
-                "under"
+                return "under"
             if y2_o > y2_f:
                 return "in front of"
             if o.x_center > x2_f:
@@ -162,6 +162,7 @@ class Goal_Manager(Node):
                         pub.data = True
                         self.object_found_publisher.publish(pub)
                         self.get_logger().info(temp_str)
+                        self.get_logger().info("-----------------------------")
             # FIND CLOSEST FURNITURE
             for index, item in enumerate(msg.yolov8_inference):
                 if not self.goal_reached:
@@ -179,11 +180,13 @@ class Goal_Manager(Node):
                 fur = msg.yolov8_inference[furniture_index]
                 overlap = calculate_area_of_overlap(obj, fur)
                 rel_pos = relative_positon(obj, fur)
-                self.get_logger().info(f'Rel pos: {rel_pos}')
-                self.get_logger().info(f'AOO: {overlap}%')
+                self.get_logger().info("-----------------------------")
+                self.get_logger().info(f'Coverage: {overlap}%')
                 self.get_logger().info(f'Smallest dist: {smallest_dist}')
                 self.get_logger().info(f'Closest furniture: {fur.class_name}')
+                self.get_logger().info(f'Rel pos: {rel_pos}')
                 temp_str = f'The {self.goal} is {rel_pos} the {fur.class_name}'
+                self.get_logger().info(temp_str)
                 tts = gtts.gTTS(temp_str, lang='en')
                 tts.save('read_this_2.mp3')
                 playsound('read_this_2.mp3')

@@ -15,7 +15,7 @@ path = path_pref + chosen_model
 
 class Camera_To_YOLO(Node):
     def __init__(self):
-        super().__init__('camera_to_YOLO')
+        super().__init__('yolo_detection')
 
         # YOLO model
         self.model = YOLO(path)

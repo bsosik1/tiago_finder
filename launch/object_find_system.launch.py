@@ -15,8 +15,14 @@ def generate_launch_description():
         executable='goal_manager',
         name='goal_manager'
     )
+    waypoint_manager = Node(
+        package='tiago_finder',
+        executable='waypoint_manager',
+        name='waypoint_manager'
+    )
     ld = LaunchDescription()
     ld.add_action(voice_control)
     ld.add_action(goal_manager)
+    ld.add_action(waypoint_manager)
 
     return ld

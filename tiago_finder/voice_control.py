@@ -15,21 +15,22 @@ class Voice_Control(Node):
     def __init__(self):
         super().__init__('voice_control')
 
+        # PUBLISHERS
+        self.text_publisher = self.create_publisher(String, '/text', 10)
+        self.intention_publisher = self.create_publisher(String,
+                                                         '/intention', 10)
         msg_1 = "Hello! Please say the name of the object that you "
         msg_2 = "would like to find. Currently mug, laptop and book "
         msg_3 = "are supported."
         welcome_msg = msg_1 + msg_2 + msg_3
+        self.get_logger().info(welcome_msg)
+
         tts = gtts.gTTS(welcome_msg, lang='en')
         tts.save('read_this.mp3')
         playsound('read_this.mp3')
         os.remove('read_this.mp3')
 
         self.voice_services_init()
-
-        # PUBLISHERS
-        self.text_publisher = self.create_publisher(String, '/text', 10)
-        self.intention_publisher = self.create_publisher(String,
-                                                         '/intention', 10)
 
     def voice_services_init(self):
         FORMAT = pyaudio.paInt16
@@ -103,11 +104,12 @@ class Voice_Control(Node):
                             os.remove('read_this.mp3')
                             msg = String()
                             msg.data = j
-                            self.get_logger().info("Got {}".format(j))
+                            # self.get_logger().info("Object: {}".format(j))
+                            self.get_logger().info(temp_str)
                             self.intention_publisher.publish(msg)
                             self.shutdown()
                 if not intention_check:
-                    temp_str = "Sorry, I couldn't understand!"
+                    temp_str = "Sorry, I couldn't understand! Please try again"
                     self.get_logger().info(temp_str)
                     tts = gtts.gTTS(temp_str, lang='en')
                     tts.save('read_this.mp3')

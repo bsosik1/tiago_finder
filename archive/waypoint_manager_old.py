@@ -4,10 +4,8 @@ import rclpy
 import math
 import yaml
 from rclpy.node import Node
-from std_msgs.msg import Bool, String
-from rclpy.action import ActionClient
-from play_motion2_msgs.action import PlayMotion2
-from rclpy.task import Future
+from std_msgs.msg import Bool, Empty
+from rclpy.duration import Duration
 
 
 def quaternion_from_euler(roll, pitch, yaw):
@@ -56,66 +54,27 @@ class WaypointManager(Node):
     def __init__(self):
         super().__init__('waypoint_manager')
         self._basic_navigator = BasicNavigator()
-        self.movement_completed = False
-        self.object_found = False
-        self.goal_handle = None
-        self.rate = self.create_rate(2)
-        self.received_goal = False
-        # SUBSCRIBER
+        self.head_movement_finished = False
+        # SUBSCRIBERS
         self._found_subscriber = self.create_subscription(
             Bool, 'object_found', self.found_callback, 10)
-        self.goal_subscriber = self.create_subscription(
-            String, '/intention', self.goal_sub_callback, 10)
-        # ACTION
-        self._action_client = ActionClient(self, PlayMotion2, 'play_motion2')
-
-    def goal_sub_callback(self, msg):
-        self.received_goal = True
-
-    # HEAD MOVEMENT HANDLING
-    def send_goal(self):
-        msg = PlayMotion2.Goal()
-        msg.motion_name = "turn_head"
-        msg.skip_planning = False
-        self.movement_completed = False
-
-        self._action_client.wait_for_server()
-        self._send_goal_future = self._action_client.send_goal_async(msg)
-        self._send_goal_future.add_done_callback(self.goal_response_callback)
-
-    def goal_response_callback(self, future: Future):
-        self.goal_handle = future.result()
-        if not self.goal_handle.accepted:
-            self.get_logger().info('Goal rejected by the action server!')
-            return
-        self.get_logger().info('Goal accepted! Head movement is starting...')
-        self._get_result_future = self.goal_handle.get_result_async()
-        self._get_result_future.add_done_callback(self.get_result_callback)
-
-    def get_result_callback(self, future: Future):
-        result = future.result().result
-        self.movement_completed = True
-        p_str = 'Movement finished with success: {0}'
-        self.get_logger().info(p_str.format(result.success))
-        if result.success is False and self.object_found is True:
-            p_str = "Head movement stopped. Check if object was found."
-            self.get_logger().info(p_str)
-        elif result.success is True:
-            self.get_logger().info('Head movement completed!')
-        else:
-            p_str = 'Error. Shutting down...'
-            self.get_logger().error(p_str)
-            rclpy.shutdown()
+        self._head_movement_finished_subscriber = self.create_subscription(
+            Empty, 'head_movement_finished',
+            self.head_movement_finished_callback, 10)
+        # PUBLISHER
+        self._waypoint_reached_publisher = self.create_publisher(
+            Empty, 'waypoint_reached', 10)
 
     def found_callback(self, msg):
         self.get_logger().info('Object found! Stopping motion...')
-        self.object_found = True
-        if self.goal_handle is not None:
-            self.goal_handle.cancel_goal_async()
         self._basic_navigator.cancelTask()
 
+    def head_movement_finished_callback(self, msg):
+        self.get_logger().info('Head movement finished!')
+        self.head_movement_finished = True
+
     def proceed_through_waypoints(self):
-        # TODO CANCEL GOAL WHEN FOUND
+        # TODO - find more elegant way...
         self._basic_navigator.waitUntilNav2Active()
         waypoints = read_yaml_waypoints(
             '/home/bsosik/tiago_ros2_ws/src/tiago_finder/config/waypoints/W_1')
@@ -123,8 +82,6 @@ class WaypointManager(Node):
         prev_i = 0
         i = 0
         for pose in goal_poses:
-            if self.object_found:
-                break
             self._basic_navigator.goToPose(pose)
             i += 1
             while not self._basic_navigator.isTaskComplete():
@@ -136,31 +93,32 @@ class WaypointManager(Node):
                         + str(len(goal_poses))
                         )
                 prev_i = i
-                rclpy.spin_once(self)
             result = self._basic_navigator.getResult()
             if result == TaskResult.SUCCEEDED:
                 print(f'Waypoint {i} was reached!')
-                if i == len(goal_poses):
-                    print('Visited each waypoint successfully')
                 print('Waiting for head movement before next waypoint...')
-                self.send_goal()
-                while not self.movement_completed:
-                    rclpy.spin_once(self)
+                msg = Empty()
+                self._waypoint_reached_publisher.publish(msg)
+                now_start = self._basic_navigator.get_clock().now()
+                while not self.head_movement_finished:
+                    now = self._basic_navigator.get_clock().now()
+                    if now - now_start > Duration(seconds=45.0):
+                        print('Waiting time exceeded! Moving to next waypoint')
+                        break
+                self.head_movement_finished = False
             elif result == TaskResult.CANCELED:
                 print('Goal was cancelled. Check if object was found.')
-                return
             elif result == TaskResult.FAILED:
                 print('Could not visit a waypoint!')
                 continue
             else:
                 print('Invalid return status!')
+        print('Visited each waypoint successfully')
 
 
 def main(args=None):
     rclpy.init(args=None)
     waypoint_manager = WaypointManager()
-    while waypoint_manager.received_goal is False:
-        rclpy.spin_once(waypoint_manager)
     waypoint_manager.proceed_through_waypoints()
     rclpy.spin(waypoint_manager)
     rclpy.shutdown()
