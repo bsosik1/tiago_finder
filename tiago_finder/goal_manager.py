@@ -45,7 +45,6 @@ def calculate_area_of_overlap(o: InferenceResult, f: InferenceResult):
 
 def relative_positon(o: InferenceResult, f: InferenceResult):
     overlap = calculate_area_of_overlap(o, f)
-    # rel_height = o.height/f.height
     # OBJECT
     x1_o, y1_o, x2_o, y2_o = convert_to_xyxy(
         o.x_center, o.y_center, o.width, o.height)

@@ -115,7 +115,6 @@ class WaypointManager(Node):
         self._basic_navigator.cancelTask()
 
     def proceed_through_waypoints(self):
-        # TODO CANCEL GOAL WHEN FOUND
         self._basic_navigator.waitUntilNav2Active()
         waypoints = read_yaml_waypoints(
             '/home/bsosik/tiago_ros2_ws/src/tiago_finder/config/waypoints/W_1')
