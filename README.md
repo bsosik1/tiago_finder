@@ -27,6 +27,6 @@ The following MeROS diagrams presents the package structure. Running system:
 <br>
 Motions system:
 ![Motions system ibd](docs/ibd_motions_system.png "motions_ibd")
-<br>
 Voice control system:
+<br>
 ![Voice control system ibd](docs/ibd_voice_control_system.png "voice_ibd")
